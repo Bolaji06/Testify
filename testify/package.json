@@ -1,0 +1,38 @@
+{
+  "name": "testify",
+  "version": "1.0.0",
+  "displayName": "Testify",
+  "description": "AI-powered test file generator for VSCode",
+  "main": "./dist/extension.js",
+  "publisher": "bolaji-bolajoko",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "activationEvents": [
+    "onCommand:testify.generateTest"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "testify.generateTest",
+        "title": "Generate Test File"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "package": "vsce package"
+  },
+  "author": "Bolaji Bolajoko",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2",
+    "vscode": "^1.1.37"
+  }
+}
