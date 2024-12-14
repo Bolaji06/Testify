@@ -18,13 +18,39 @@
     "commands": [
       {
         "command": "testify.generateTest",
-        "title": "Generate Test File"
+        "title": "Testify: Generate Test File",
+        "category": "Testify"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "testify.generateTest",
+          "when": "resourceLangId != markdown",
+          "group": "navigation"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "testify.generateTest",
+          "when": "resourceLangId == javascript || resourceLangId == typescript",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "testify.generateTest",
+          "when": "resourceLangId == javascript || resourceLangId == typescript",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "test": "jest",
     "build": "tsc",
+    "compile": "tsc -p",
+    "vscode:prepublish": "npm run compile",
     "watch": "tsc -w",
     "package": "vsce package"
   },
