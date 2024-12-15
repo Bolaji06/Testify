@@ -42,23 +42,54 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activate = activate;
-exports.deactivate = deactivate;
+exports.generateTestFile = generateTestFile;
 const vscode = __importStar(require("vscode"));
-const testFileGenerator_1 = require("./lib/testFileGenerator");
-function activate(context) {
-    // Register the command to handle file and workspace contexts
-    const generateTestCommand = vscode.commands.registerCommand("testify.generateTest", (uri) => __awaiter(this, void 0, void 0, function* () {
-        var _a;
-        let filePath = (uri === null || uri === void 0 ? void 0 : uri.fsPath) || ((_a = vscode.window.activeTextEditor) === null || _a === void 0 ? void 0 : _a.document.fileName);
-        if (!filePath) {
-            vscode.window.showWarningMessage("No file selected or open.");
-            return;
+const path = __importStar(require("path"));
+const fs = __importStar(require("fs/promises"));
+/**
+ * Generate a test file in the same directory as the given file
+ * @param filePath The full path to the file which test file will be generated
+ */
+function generateTestFile(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const dir = path.dirname(filePath);
+            const basename = path.basename(filePath, path.extname(filePath)); // file name without the extension
+            const extension = path.extname(filePath); // original file extension
+            // define the test file name and path
+            const testFileName = `${basename}.test${extension}`;
+            const testFilePath = path.join(dir, testFileName);
+            try {
+                // check if test file already exits
+                yield fs.access(testFilePath);
+                vscode.window.showErrorMessage("Test file already exits");
+                const docs = yield vscode.workspace.openTextDocument(testFilePath);
+                yield vscode.window.showTextDocument(docs);
+                return;
+            }
+            catch (_a) {
+                // proceed to generate test file
+            }
+            // boiler template to generate test file
+            const template = `
+    // test file for ${testFileName}
+    
+    describe("test file", () => {
+      it("it should work", () => {
+        // Add your test logic
+      })
+    })
+  `;
+            yield fs.writeFile(testFilePath, template);
+            // open the newly created test file
+            const doc = yield vscode.workspace.openTextDocument(testFilePath);
+            yield vscode.window.showTextDocument(doc);
+            vscode.window.showInformationMessage("Test file created: " + testFileName);
         }
-        // generate the test file
-        yield (0, testFileGenerator_1.generateTestFile)(filePath);
-    }));
-    // Add the command to subscriptions
-    context.subscriptions.push(generateTestCommand);
+        catch (error) {
+            if (error instanceof Error) {
+                vscode.window.showErrorMessage("Error generating test file: " + error.message);
+            }
+        }
+    });
 }
-function deactivate() { }

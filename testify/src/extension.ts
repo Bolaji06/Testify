@@ -1,27 +1,19 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import { generateTestFile } from "./lib/testFileGenerator";
 
 export function activate(context: vscode.ExtensionContext) {
   // Register the command to handle file and workspace contexts
   const generateTestCommand = vscode.commands.registerCommand(
     "testify.generateTest",
-    (uri) => {
-      let fileName = "";
-      if (uri) {
-        // User right-clicked on a specific file
-        fileName = path.basename(uri.fsPath);
-      } else {
-        const activeEditor = vscode.window.activeTextEditor;
-        if (activeEditor) {
-          fileName = path.basename(activeEditor.document.fileName);
-        } else {
-          vscode.window.showErrorMessage("No active editor found");
-          return;
-        }
+    async (uri: vscode.Uri) => {
+      let filePath = uri?.fsPath || vscode.window.activeTextEditor?.document.fileName;
+      if(!filePath){
+        vscode.window.showWarningMessage("No file selected or open.");
+        return;
       }
-      vscode.window.showInformationMessage(
-        `Generating test file for: ${fileName}`
-      );
+      // generate the test file
+      await generateTestFile(filePath);
     }
   );
 
