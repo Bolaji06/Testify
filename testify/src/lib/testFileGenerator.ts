@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs/promises";
+import { generateSmartTest } from "./smartTest";
 
 /**
  * Generate a test file in the same directory as the given file
@@ -39,7 +40,15 @@ export async function generateTestFile(filePath: string): Promise<void> {
     })
   `;
 
-    await fs.writeFile(testFilePath, template);
+    const fileContent = await generateSmartTest(filePath);
+
+    if (fileContent) {
+      await fs.writeFile(testFilePath, fileContent);
+    } else {
+      vscode.window.showErrorMessage("File content is missing");
+      return;
+    }
+    //await fs.writeFile(testFilePath, fileContent);
 
     // open the newly created test file
     const doc = await vscode.workspace.openTextDocument(testFilePath);
