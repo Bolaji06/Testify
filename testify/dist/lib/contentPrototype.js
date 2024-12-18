@@ -8,21 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generativeModel = generativeModel;
-const generative_ai_1 = require("@google/generative-ai");
-function generativeModel(prompt) {
+exports.generateText = generateText;
+const path_1 = __importDefault(require("path"));
+const promises_1 = __importDefault(require("fs/promises"));
+function generateText() {
     return __awaiter(this, void 0, void 0, function* () {
-        const apiKey = `${process.env.LLM_API_KEY}`;
-        const systemPrompt = `You're a code test generator. You will provide unit tests for the code provided in the prompt. 
-You should include tests for edge cases and make sure they are robust.`;
-        const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            systemInstruction: systemPrompt,
-        });
-        const moreContext = `Generate a test for this code: ${prompt}`;
-        const result = yield model.generateContent(moreContext);
-        return result.response.text;
+        const filePath = path_1.default.join(process.cwd(), "test.md");
+        const fileContent = yield promises_1.default.readFile(filePath, "utf-8");
+        return fileContent;
     });
 }

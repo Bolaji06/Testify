@@ -46,8 +46,10 @@ exports.activate = activate;
 exports.deactivate = deactivate;
 const dotenv = __importStar(require("dotenv"));
 const vscode = __importStar(require("vscode"));
+const path = __importStar(require("path"));
 const testFileGenerator_1 = require("./lib/testFileGenerator");
-dotenv.config(); // load environment variables
+//dotenv.config(); // load environment variables
+dotenv.config({ path: path.join(__dirname, "../.env") });
 function activate(context) {
     // Register the command to handle file and workspace contexts
     const generateTestCommand = vscode.commands.registerCommand("testify.generateTest", (uri) => __awaiter(this, void 0, void 0, function* () {
@@ -57,13 +59,31 @@ function activate(context) {
             vscode.window.showWarningMessage("No file selected or open.");
             return;
         }
-        const key = `${process.env.LLM_API_KEY}`;
-        //vscode.window.showInformationMessage(key);
+        if (!process.env.LLM_API_KEY) {
+            vscode.window.showInformationMessage("API key is not found please add it to your .env file");
+            return;
+        }
+        try {
+            yield vscode.window.withProgress({
+                location: vscode.ProgressLocation.Window,
+                title: "Generating test file...",
+                cancellable: false,
+            }, (progress, token) => __awaiter(this, void 0, void 0, function* () {
+                if (token.isCancellationRequested) {
+                    vscode.window.showWarningMessage("Operation cancelled");
+                    return;
+                }
+                progress.report({ message: "Sending code to LLM..." });
+                yield (0, testFileGenerator_1.generateTestFile)(filePath);
+            }));
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                vscode.window.showErrorMessage("Error generating test: " + error.message);
+            }
+        }
         // generate the test file
-        yield (0, testFileGenerator_1.generateTestFile)(filePath);
     }));
-    const key = `${process.env.LLM_API_KEY}`;
-    console.log(key);
     // Add the command to subscriptions
     context.subscriptions.push(generateTestCommand);
 }

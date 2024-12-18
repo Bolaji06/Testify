@@ -1,0 +1,60 @@
+
+```typescript
+import { isAnagram } from "./anagram";
+
+describe("isAnagram", () => {
+  it("should handle empty strings", () => {
+    expect(isAnagram("", "")).toBe(true);
+  });
+
+  it("should correctly identify anagrams", () => {
+    expect(isAnagram("listen", "silent")).toBe(true);
+    expect(isAnagram("Debit card", "Bad credit")).toBe(true);
+    expect(isAnagram("A gentleman", "Elegant man")).toBe(true);
+  });
+
+  it("should correctly identify non-anagrams", () => {
+    expect(isAnagram("hello", "world")).toBe(false);
+    expect(isAnagram("abc", "abcd")).toBe(false);
+    expect(isAnagram("listen", "Silent")).toBe(true);
+
+  });
+
+  it("should handle strings with different lengths", () => {
+    expect(isAnagram("hello", "hell")).toBe(false);
+  });
+
+  it("should handle strings with spaces and special characters", () => {
+    expect(isAnagram("Debit card", "Bad credit")).toBe(true);
+    expect(isAnagram("A gentleman", "Elegant man")).toBe(true);
+    expect(isAnagram("123", "321")).toBe(true);
+    expect(isAnagram("123!", "321")).toBe(false);
+  });
+
+  it("should handle strings with uppercase and lowercase letters", () => {
+    expect(isAnagram("Listen", "silent")).toBe(true);
+  });
+
+
+  it("should handle edge cases with spaces", () => {
+    expect(isAnagram("hello world", "world hello")).toBe(true);
+    expect(isAnagram("  hello  ", "hello")).toBe(true);
+    expect(isAnagram("hello", "  hello  ")).toBe(true);
+    expect(isAnagram("hello  world", "world hello")).toBe(true);
+
+  });
+
+  it("should handle edge cases with special characters", () => {
+      expect(isAnagram("hello!", "hello")).toBe(false);
+      expect(isAnagram("hello?", "hello")).toBe(false);
+      expect(isAnagram("hello!", "hello!")).toBe(true);
+  });
+
+  it("should handle numbers", () => {
+    expect(isAnagram("123", "321")).toBe(true);
+    expect(isAnagram("123", "1234")).toBe(false);
+  });
+
+
+});
+```

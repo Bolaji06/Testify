@@ -42,9 +42,9 @@ export async function generateTestFile(filePath: string): Promise<void> {
 
     const fileContent = await generateSmartTest(filePath);
 
-    if(fileContent){
-      await fs.writeFile(testFilePath, fileContent)
-    }else{
+    if (fileContent) {
+      await fs.writeFile(testFilePath, fileContent);
+    } else {
       vscode.window.showErrorMessage("File content is missing");
       return;
     }
