@@ -7,7 +7,10 @@ import { generateSmartTest } from "./smartTest";
  * Generate a test file in the same directory as the given file
  * @param filePath The full path to the file which test file will be generated
  */
-export async function generateTestFile(filePath: string): Promise<void> {
+export async function generateTestFile(
+  filePath: string,
+  context: vscode.ExtensionContext
+): Promise<void> {
   try {
     const dir = path.dirname(filePath);
     const basename = path.basename(filePath, path.extname(filePath)); // file name without the extension
@@ -18,31 +21,32 @@ export async function generateTestFile(filePath: string): Promise<void> {
     const testFilePath = path.join(dir, testFileName);
     try {
       // check if test file already exits
-      await fs.access(testFilePath);
-      vscode.window.showErrorMessage("Test file already exits");
+      
+        await fs.access(testFilePath);
+        vscode.window.showWarningMessage("Test file already exits");
 
-      // open the test file
-      const docs = await vscode.workspace.openTextDocument(testFilePath);
-      await vscode.window.showTextDocument(docs);
-      return;
+        // open the test file
+        const docs = await vscode.workspace.openTextDocument(testFilePath);
+        await vscode.window.showTextDocument(docs);
+        return;
+    
     } catch {
       // proceed to generate test file
     }
 
-    // boiler template to generate test file
-    const template = `
-    // test file for ${testFileName}
-    
-    describe("test file", () => {
-      it("it should work", () => {
-        // Add your test logic
-      })
-    })
-  `;
-
-    const fileContent = await generateSmartTest(filePath);
+    const fileContent = await generateSmartTest(filePath, context);
 
     if (fileContent) {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "",
+          cancellable: true,
+        },
+        async (progress) => {
+          progress.report({ message: "Writing test file..." });
+        }
+      );
       await fs.writeFile(testFilePath, fileContent);
     } else {
       vscode.window.showErrorMessage("File content is missing");
@@ -53,8 +57,7 @@ export async function generateTestFile(filePath: string): Promise<void> {
     // open the newly created test file
     const doc = await vscode.workspace.openTextDocument(testFilePath);
     await vscode.window.showTextDocument(doc);
-
-    vscode.window.showInformationMessage("Test file created: " + testFileName);
+    vscode.window.showInformationMessage("Test file Generated");
   } catch (error) {
     if (error instanceof Error) {
       vscode.window.showErrorMessage(

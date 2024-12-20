@@ -20,6 +20,18 @@
         "command": "testify.generateTest",
         "title": "Testify: Generate Test File",
         "category": "Testify"
+      },
+      {
+        "command": "testify.clearPackageJsonPath",
+        "title": "Testify: Clear Stored package.json Path",
+        "category": "Testify"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "testify.generateTest",
+        "key": "ctrl+alt+g",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {

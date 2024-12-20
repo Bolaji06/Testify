@@ -2,6 +2,8 @@ import * as dotenv from "dotenv";
 import * as vscode from "vscode";
 import * as path from "path";
 import { generateTestFile } from "./lib/testFileGenerator";
+import clearPackageJsonPath from "./lib/clearPackageJsonPath";
+import fs from "fs/promises";
 
 //dotenv.config(); // load environment variables
 
@@ -14,6 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
     async (uri: vscode.Uri) => {
       let filePath =
         uri?.fsPath || vscode.window.activeTextEditor?.document.fileName;
+
       if (!filePath) {
         vscode.window.showWarningMessage("No file selected or open.");
         return;
@@ -29,15 +32,15 @@ export function activate(context: vscode.ExtensionContext) {
           {
             location: vscode.ProgressLocation.Window,
             title: "Generating test file...",
-            cancellable: false,
+            cancellable: true,
           },
           async (progress, token) => {
-            if(token.isCancellationRequested){
+            if (token.isCancellationRequested) {
               vscode.window.showWarningMessage("Operation cancelled");
               return;
             }
-            progress.report({ message: "Sending code to LLM..." });
-            await generateTestFile(filePath);
+            progress.report({ message: "Detecting testing library..." });
+            await generateTestFile(filePath, context);
           }
         );
       } catch (error) {
@@ -51,8 +54,14 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  const clearPathCommand = vscode.commands.registerCommand(
+    "testify.clearPackageJsonPath",
+    () => clearPackageJsonPath(context)
+  );
+
   // Add the command to subscriptions
   context.subscriptions.push(generateTestCommand);
+  context.subscriptions.push(clearPathCommand);
 }
 
 export function deactivate() {}
